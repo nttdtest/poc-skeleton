@@ -1,0 +1,9 @@
+_answers_file: ".copier-answers.yml"
+_subdirectory: "template"
+
+_skip_if_exists:
+  - NOTICE
+  - LICENSE
+
+_exclude:
+  - README.md
