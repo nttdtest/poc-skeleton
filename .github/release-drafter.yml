@@ -67,5 +67,3 @@ version-resolver:
 
 exclude-labels:
   - "skip-changelog"
-
-prerelease: true
