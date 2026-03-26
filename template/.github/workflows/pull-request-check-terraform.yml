@@ -80,7 +80,7 @@ jobs:
           make test
 
   check-complete:
-    name: "Check Complete"
+    name: "Terraform Check Complete"
     needs: [check-azure, check-aws, check-other]
     if: always()
     permissions:
