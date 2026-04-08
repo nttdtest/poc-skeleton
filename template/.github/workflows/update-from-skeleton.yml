@@ -2,7 +2,7 @@ name: Update Repository from Skeleton
 
 on:
   schedule:
-    - cron: "0 0 * * 0" # Every Sunday at midnight
+    - cron: "0 0 * * *" # Midnight, daily for now
   workflow_dispatch:
 
 jobs:
