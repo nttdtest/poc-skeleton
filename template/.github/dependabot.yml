@@ -2,9 +2,15 @@ version: 2
 
 multi-ecosystem-groups:
   module:
+    commit-message:
+      prefix: "chore"
+      include: scope
     schedule:
       interval: "weekly"
   workflows:
+    commit-message:
+      prefix: "chore"
+      include: scope
     schedule:
       interval: "weekly"
 
