@@ -13,3 +13,6 @@ tasks:
   - rm -f .github/workflows/increment_tagged_version.yaml
   - rm -f .github/workflows/lint-terraform.yaml
   - rm -f .github/workflows/validate-branch-name.yaml
+  # Remove the cloud-specific TF workflows if they exist
+  - rm -f .github/workflows/pull-request-terraform-check-aws.yml
+  - rm -f .github/workflows/pull-request-terraform-check-azure.yml
