@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       recopy:
-        description: "Perform a full recopy instead of an incremental update (overwrites all templated files). The resulting PR will require manual review and merging."
+        description: "Perform a full recopy instead of an incremental update (overwrites all templated files), and re-runs any tasks defined in copier.yml. The resulting PR will require manual review and merging."
         type: boolean
         default: false
 
@@ -55,10 +55,10 @@ jobs:
           COPIER_FLAGS="--defaults"
           if [ "${{ inputs.recopy }}" == "true" ]; then
             COPIER_CMD="recopy"
-            COPIER_FLAGS="--defaults --overwrite"
+            COPIER_FLAGS="--defaults --overwrite --trust"
           fi
 
-          if [ "$SKELETON_RELEASE_TRAIN" == "prerelease" ]; then
+          if [ "$SKELETON_RELEASE_TRAIN" == "true" ]; then
             echo "Using prerelease versions of skeleton workflows ($COPIER_CMD)"
             uv run copier $COPIER_CMD $COPIER_FLAGS --prerelease
           else

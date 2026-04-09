@@ -8,6 +8,9 @@ _skip_if_exists:
 _exclude:
   - README.md
 
+# Note that tasks require the --trust flag to run, so they won't be run by default when our repositories automatically
+# update. If you need to re-run tasks, you will need to set the recopy flag on the update-from-skeleton workflow, which
+# will trigger a full recopy and run all tasks, but will require manual review and merging of the resulting PR.
 _tasks:
   # Remove the legacy TF workflows if they exist
   - command: "rm -f .github/workflows/increment_tagged_version.yaml"
