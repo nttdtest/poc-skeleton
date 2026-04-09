@@ -8,7 +8,7 @@ _skip_if_exists:
 _exclude:
   - README.md
 
-tasks:
+_tasks:
   # Remove the legacy TF workflows if they exist
   - command: rm -f .github/workflows/increment_tagged_version.yaml
   - command: rm -f .github/workflows/lint-terraform.yaml
