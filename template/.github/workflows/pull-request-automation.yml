@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' || github.actor == 'launch-skeleton-auto-updater[bot]' }}
     steps:
-      - name: Check Commit Authors
-        id: check-authors
+      - name: Check Pull Request
+        id: check-pull-request
         run: |
           ALLOWED_AUTHORS="dependabot[bot] launch-skeleton-auto-updater[bot]"
 
@@ -24,16 +24,24 @@ jobs:
           echo "Commit authors on this PR:"
           echo "$AUTHORS"
 
-          ALL_AUTOMATED=true
+          SHOULD_APPROVE=true
           for author in $AUTHORS; do
             if [[ ! " $ALLOWED_AUTHORS " =~ " $author " ]]; then
               echo "Found non-automated author: $author"
-              ALL_AUTOMATED=false
+              SHOULD_APPROVE=false
               break
             fi
           done
 
-          echo "all_automated=$ALL_AUTOMATED" >> "$GITHUB_OUTPUT"
+          if [ "$SHOULD_APPROVE" == "true" ] && [ "${{ github.actor }}" == "launch-skeleton-auto-updater[bot]" ]; then
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            if [[ "$PR_TITLE" != chore* ]]; then
+              echo "Skeleton updater PR title does not start with 'chore': $PR_TITLE"
+              SHOULD_APPROVE=false
+            fi
+          fi
+
+          echo "should_approve=$SHOULD_APPROVE" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -52,7 +60,7 @@ jobs:
           private-key: ${{ secrets.LAUNCH_APPROVER_BRAVO_KEY }}
 
       - name: Approve PR
-        if: steps.check-authors.outputs.all_automated == 'true'
+        if: steps.check-pull-request.outputs.should_approve == 'true'
         run: |
           echo "All commits are from automated users. Approving PR..."
 
@@ -71,7 +79,7 @@ jobs:
           GH_TOKEN: ${{ steps.approver-alpha-token.outputs.token }}
 
       - name: Revoke Approvals
-        if: steps.check-authors.outputs.all_automated == 'false'
+        if: steps.check-pull-request.outputs.should_approve == 'false'
         run: |
           echo "Non-automated commits detected. Revoking any existing automated approvals..."
 

@@ -19,6 +19,16 @@ updates:
     directory: "/"
     multi-ecosystem-group: "workflows"
     patterns: ["*"]
+    exclude-paths:
+      # Workflows delivered through the skeleton update process
+      # should only be updated in the skeleton repo, but any other
+      # workflows that happen to be installed should be updated.
+      - .github/workflows/pull-request-automation.yml
+      - .github/workflows/pull-request-check-terraform.yml
+      - .github/workflows/pull-request-dependabot-automerge.yml
+      - .github/workflows/pull-request-label.yml
+      - .github/workflows/release-publish.yml
+      - .github/workflows/update-from-skeleton.yml
 
   - package-ecosystem: "gomod"
     directory: "/"
