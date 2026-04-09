@@ -1,120 +1,18 @@
-name: "Check Terraform Code"
+name: "Check Terraform"
 
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
     branches: [main]
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
-  check-azure:
-    if: ${{ contains(github.event.pull_request.head.repo.full_name, 'tf-az') }}
-    name: "Check Azure Terraform Code"
+  check:
+    name: "Reusable Workflow"
     permissions:
       contents: read
       id-token: write
-    uses: launchbynttdata/launch-workflows/.github/workflows/reusable-terraform-check-azure.yml@0.14.2
-    secrets: inherit # pragma: allowlist secret
-
-  check-aws:
-    if: ${{ contains(github.event.pull_request.head.repo.full_name, 'tf-aws') }}
-    name: "Check AWS Terraform Code"
-    # Remove the following line after copying to your own repository
-    permissions:
-      contents: read
-      id-token: write
-    uses: launchbynttdata/launch-workflows/.github/workflows/reusable-terraform-check-aws.yml@0.14.2
+      statuses: write
+    uses: launchbynttdata/launch-workflows/.github/workflows/reusable-terraform-check.yml@feat/unify-provider-auth
     with:
-      assume_role_arn: ${{ vars.TERRAFORM_CHECK_AWS_ASSUME_ROLE_ARN }}
-      region: ${{ vars.TERRAFORM_CHECK_AWS_REGION }}
+      auth_method: ${{ startsWith(github.event.repository.name, 'tf-aws') && 'aws' || startsWith(github.event.repository.name, 'tf-az') && 'azure' || 'none' }}
     secrets: inherit # pragma: allowlist secret
-
-  # Anything that isn't Azure or AWS doesn't have a reusable workflow (yet), so we'll just run the checks directly in this workflow.
-  # No authentication is performed here, so this is only suitable for TF modules that don't touch cloud resources.
-  check-other:
-    name: "Check Other Terraform Code"
-    if: ${{ !contains(github.event.pull_request.head.repo.full_name, 'tf-az') && !contains(github.event.pull_request.head.repo.full_name, 'tf-aws') }}
-    permissions:
-      contents: read
-      id-token: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493
-
-      - name: Setup asdf
-        # We use the 'setup' variant of this action, because we have some custom behavior in
-        # our .tool-versions file and Makefile to install plugins from outside the default registry.
-        uses: asdf-vm/actions/setup@b7bcd026f18772e44fe1026d729e1611cc435d47
-
-      - uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
-        # If we've cached the asdf tools, restore them based on the hash of the .tool-versions file.
-        name: Restore cached asdf tools
-        id: cache
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-tool-versions-${{ hashFiles('.tool-versions') }}
-
-      - name: Setup Repository for Checks
-        # Ensure the 'repo' tool is installed, set up git to make the Makefile happy, and then configure to clone LCAF.
-        shell: bash
-        run: |
-          mkdir -p ~/.local/bin
-          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/.local/bin/repo
-          chmod +x ~/.local/bin/repo
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          set -x
-          git config user.name "GitHub Actions"
-          git config user.email "noreply@launch.nttdata.com"
-          make configure
-
-      - name: "make lint"
-        run: |
-          make lint
-
-      - name: "make test"
-        run: |
-          make test
-
-  check-complete:
-    name: "Terraform Check Complete"
-    needs: [check-azure, check-aws, check-other]
-    if: always()
-    permissions:
-      contents: read
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Combined Check Status"
-        run: |
-          AZURE_RESULT="${{ needs.check-azure.result }}"
-          AWS_RESULT="${{ needs.check-aws.result }}"
-          OTHER_RESULT="${{ needs.check-other.result }}"
-
-          echo "Azure check: $AZURE_RESULT"
-          echo "AWS check: $AWS_RESULT"
-          echo "Other check: $OTHER_RESULT"
-
-          # Fail if any executed check failed or was cancelled
-          if [[ "$AZURE_RESULT" == "failure" || "$AZURE_RESULT" == "cancelled" ]]; then
-            echo "::error::Azure check failed"
-            exit 1
-          fi
-          if [[ "$AWS_RESULT" == "failure" || "$AWS_RESULT" == "cancelled" ]]; then
-            echo "::error::AWS check failed"
-            exit 1
-          fi
-          if [[ "$OTHER_RESULT" == "failure" || "$OTHER_RESULT" == "cancelled" ]]; then
-            echo "::error::Other check failed"
-            exit 1
-          fi
-
-          # Fail if all checks were skipped
-          if [[ "$AZURE_RESULT" == "skipped" && "$AWS_RESULT" == "skipped" && "$OTHER_RESULT" == "skipped" ]]; then
-            echo "::error::All checks were skipped - at least one must run"
-            exit 1
-          fi
-
-          echo "All required checks passed"
