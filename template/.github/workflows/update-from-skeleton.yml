@@ -49,7 +49,7 @@ jobs:
       - id: run-updates
         name: Run Updates from Skeleton
         run: |
-          SKELETON_RELEASE_TRAIN=$(echo '${{ steps.get-repo-custom-properties.outputs.properties }}' | jq -r '.[] | select(.property_name == "skeleton_release_train") | .value')
+          PRERELEASE=$(echo '${{ steps.get-repo-custom-properties.outputs.properties }}' | jq -r '.[] | select(.property_name == "prerelease") | .value')
 
           COPIER_CMD="update"
           COPIER_FLAGS="--defaults"
@@ -58,7 +58,7 @@ jobs:
             COPIER_FLAGS="--defaults --overwrite --trust"
           fi
 
-          if [ "$SKELETON_RELEASE_TRAIN" == "true" ]; then
+          if [ "$PRERELEASE" == "true" ]; then
             echo "Using prerelease versions of skeleton workflows ($COPIER_CMD)"
             uv run copier $COPIER_CMD $COPIER_FLAGS --prerelease
           else
