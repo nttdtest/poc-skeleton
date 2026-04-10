@@ -27,6 +27,8 @@ Given that a change here may eventually land in several hundred downstream repos
     - If the prerelease does not perform as expected, further changes are PRed and merged to main, which result in the creation of a new prerelease, which is retested.
 5. Once the prerelease has been validated and works as desired, the drafted release is published, which will encompass all the changes in the prereleases
 
+Be sure to regenerate the release notes prior to publishing the drafted release, to ensure you pick up all of the commits in the release candidates!
+
 ## Prerelease Opt-in
 
 Prereleases are currently opt-in at the repository level, controlled via a Custom Property. Set the `prerelease` property to "true" on any Terraform module to have the auto-update workflows utilize prereleases.
