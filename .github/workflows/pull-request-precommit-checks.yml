@@ -8,6 +8,7 @@ jobs:
     name: "Pre-Commit Checks"
     permissions:
       contents: read
+      statuses: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

@@ -13,7 +13,6 @@ jobs:
     name: "Pre-Commit"
     permissions:
       contents: read
-      statuses: write
     runs-on: ubuntu-latest
     steps:
       - id: checkout
