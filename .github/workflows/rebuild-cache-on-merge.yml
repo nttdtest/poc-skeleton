@@ -1,4 +1,4 @@
-name: Rebuild Precommit Cache
+name: Rebuild Pre-Commit Cache
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: checkout
-        name: Checkout code
+        name: Checkout
         uses: actions/checkout@v6
 
       - id: setup-python
@@ -37,6 +37,7 @@ jobs:
 
       - id: save-cache
         uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        name: Save pre-commit cache
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
