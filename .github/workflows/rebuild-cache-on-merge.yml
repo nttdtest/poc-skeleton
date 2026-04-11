@@ -10,7 +10,7 @@ on:
 
 jobs:
   pre-commit:
-    name: "Pre-Commit"
+    name: Rebuild Pre-Commit Cache
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -35,8 +35,8 @@ jobs:
         run: uv run pre-commit run --all-files
 
       - id: save-cache
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
         name: Save pre-commit cache
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
