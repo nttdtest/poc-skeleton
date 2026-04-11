@@ -1,0 +1,41 @@
+name: Rebuild Precommit Cache
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".pre-commit-config.yaml"
+  workflow_dispatch:
+
+jobs:
+  pre-commit:
+    name: "Pre-Commit"
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout
+        name: Checkout code
+        uses: actions/checkout@v6
+
+      - id: setup-python
+        name: Set up Python 3.14
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57
+        with:
+          python-version: 3.14
+
+      - id: install-tools
+        name: Install Tools with uv
+        run: |
+          uv tool install pre-commit --with pre-commit-uv
+
+      - id: pre-commit
+        name: Run pre-commit checks
+        run: uv run pre-commit run --all-files
+
+      - id: save-cache
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}

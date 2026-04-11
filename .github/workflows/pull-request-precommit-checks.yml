@@ -1,0 +1,48 @@
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+    branches: [main]
+
+jobs:
+  pre-commit:
+    name: "Pre-Commit Checks"
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - id: setup-python
+        name: Set up Python 3.14
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57
+        with:
+          python-version: 3.14
+
+      - id: install-tools
+        name: Install Tools with uv
+        run: |
+          uv tool install pre-commit --with pre-commit-uv
+
+      - uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        # If we've cached the pre-commit environment, restore it based on the hash of the pre-commit config.
+        name: Restore cached pre-commit environment
+        id: cache
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - id: pre-commit
+        name: Run pre-commit checks
+        run: uv run pre-commit run --all-files
+        continue-on-error: true
+
+      - id: set-status-check
+        if: always()
+        name: "Set Status Check"
+        uses: launchbynttdata/launch-workflows/.github/actions/update-status-check@feat/unify-terraform-check-workflows
+        with:
+          check_name: "Pre-Commit Checks"
+          status: ${{ steps.pre-commit.outcome == 'success' && 'success' || steps.pre-commit.outcome == 'failure' && 'failure' || 'error' }}
+          description: "Pre-Commit Checks ${{steps.pre-commit.outcome }}"
+          target_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
