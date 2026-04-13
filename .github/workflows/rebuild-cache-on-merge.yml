@@ -36,7 +36,7 @@ jobs:
 
       - id: save-cache
         name: Save pre-commit cache
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
