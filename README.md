@@ -12,7 +12,7 @@ If Copier can't safely merge changes from a given update, it will leave a pull r
 
 ## Template Folder
 
-Files contained within the [template](./template/) folder will be updated in the root of the downstream repos when they are changed. This allows us to separate the workflows associated with this repository from the workflows found in a downstream repository.
+Files contained within the [template](./template/) folder will be updated in the root of the downstream repos when they are changed. This allows us to separate the workflows associated with this repository from the workflows found in a downstream repository. Changes to these files should be made in a way that they are compatible with our entire Terraform ecosystem. Prereleases can be utilized to roll out a change across a subset of repositories.
 
 ## Release Process
 
