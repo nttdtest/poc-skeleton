@@ -52,10 +52,10 @@ jobs:
           PRERELEASE=$(echo '${{ steps.get-repo-custom-properties.outputs.properties }}' | jq -r '.[] | select(.property_name == "prerelease") | .value')
 
           COPIER_CMD="update"
-          COPIER_FLAGS="--defaults"
+          COPIER_FLAGS="--defaults --trust"
           if [ "${{ inputs.recopy }}" == "true" ]; then
             COPIER_CMD="recopy"
-            COPIER_FLAGS="--defaults --overwrite --trust"
+            COPIER_FLAGS="$COPIER_FLAGS --overwrite"
           fi
 
           if [ "$PRERELEASE" == "true" ]; then
