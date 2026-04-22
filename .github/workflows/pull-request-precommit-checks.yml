@@ -31,7 +31,7 @@ jobs:
       # If we've cached the pre-commit environment, restore it based on the hash of the pre-commit config.
       - id: cache
         name: Restore cached pre-commit environment
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
