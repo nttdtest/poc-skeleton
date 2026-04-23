@@ -6,9 +6,15 @@ on:
   workflow_dispatch:
     inputs:
       recopy:
-        description: "Perform a full recopy instead of an incremental update (overwrites all templated files), and re-runs any tasks defined in copier.yml. The resulting PR will require manual review and merging."
+        description: "Perform a full recopy instead of an incremental update (overwrites
+          all templated files), and re-runs any tasks defined in copier.yml. The
+          resulting PR will require manual review and merging."
         type: boolean
         default: false
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   update-from-skeleton:
